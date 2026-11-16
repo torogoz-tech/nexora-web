@@ -1,0 +1,8 @@
+import { Unlink } from 'lucide-react'
+import { useTranslation } from '../hooks/useTranslation'
+import IconButton from './IconButton'
+import type { GitAuthorAlias } from '../types/GitAuthorAlias'
+export default function GitAliasList({ items, projectName, canManage = false, canManageGlobal = false, onRevoke }: { items: GitAuthorAlias[]; projectName: (id: string) => string; canManage?: boolean; canManageGlobal?: boolean; onRevoke?: (alias: GitAuthorAlias) => void }) {
+ const { t } = useTranslation()
+ return items.length ? <div className="overflow-x-auto"><table className="table w-full"><thead><tr><th>{t('Correo del autor en Git')}</th><th>{t('Miembro')}</th><th>{t('Ámbito')}</th><th>{t('Estado')}</th><th><span className="sr-only">{t('Acciones')}</span></th></tr></thead><tbody>{items.map(alias => <tr key={alias.id}><td><span className={`block break-all font-medium ${alias.revoked_at ? 'text-base-content/45 line-through' : ''}`}>{alias.email}</span><span className="mt-1 block text-xs text-base-content/45">{alias.provider === 'github' ? 'GitHub' : 'GitLab'} · {alias.host}</span></td><td>{alias.actor_name}</td><td className="text-xs text-base-content/55">{alias.project_id ? projectName(alias.project_id) || t('Proyecto autorizado') : t('Toda la organización')}</td><td className="text-xs">{t(alias.revoked_at ? 'Revocado' : 'Activo')}</td><td className="text-right">{!alias.revoked_at && canManage && (alias.project_id !== null || canManageGlobal) && onRevoke && <IconButton label={t('Revocar alias Git')} onClick={() => onRevoke(alias)}><Unlink size={15}/></IconButton>}</td></tr>)}</tbody></table></div> : <p className="py-8 text-center text-sm text-base-content/50">{t('No hay alias Git para mostrar.')}</p>
+}

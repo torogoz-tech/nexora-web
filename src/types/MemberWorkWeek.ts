@@ -1,0 +1,1 @@
+export type MemberWorkWeek = {timezone:string;days:{date:string;active_seconds:number;regular_seconds:number;overtime_seconds:number;unapproved_seconds:number;task_seconds?:number;activity_seconds?:number;availability?:{scheduled_minutes:number;absence_minutes:number;activity_minutes:number;expected_task_minutes:number}}[]}

@@ -1,0 +1,3 @@
+import { requireRecord } from './requireRecord'
+import type { KnowledgeReview } from '../types/KnowledgeReview'
+export function parseKnowledgeReviews(value:unknown):{items:KnowledgeReview[];total:number}{const root=requireRecord(value);if(!Array.isArray(root.items)||!Number.isSafeInteger(root.total))throw Error('Las revisiones no son válidas.');return {items:root.items.map(value=>{const r=requireRecord(value);if(!['id','kind','resource_id','title','status'].every(k=>typeof r[k]==='string')||!Number.isSafeInteger(r.revision)||!Number.isSafeInteger(r.resource_revision))throw Error('La revisión no es válida.');return r as KnowledgeReview}),total:root.total as number}}

@@ -1,0 +1,1 @@
+export type ProfileImportantDate={id:string;label:string;start:string;end:string;allDay?:boolean;startTime?:string|null;endTime?:string|null;kind:'vacation'|'leave'|'holiday'|'public_holiday'|'activity'}

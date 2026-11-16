@@ -1,0 +1,6 @@
+import {FileCode,Folder} from 'lucide-react'
+export default function RepositoryFileTree({paths,prefix='',selected,onSelect}:{paths:string[];prefix?:string;selected:string;onSelect:(path:string)=>void}){
+ const groups=new Map<string,string[]>()
+ for(const path of paths){const part=path.slice(prefix.length).split('/')[0];groups.set(part,[...(groups.get(part)??[]),path])}
+ return <ul className="space-y-1">{[...groups.entries()].sort(([a],[b])=>a.localeCompare(b)).map(([part,items])=>items[0]===prefix+part?<li key={part}><button type="button" aria-pressed={selected===items[0]} className={`flex w-full items-start gap-2 rounded-lg px-2 py-1.5 text-left text-xs hover:bg-base-200 ${selected===items[0]?'bg-base-200 font-medium':''}`} onClick={()=>onSelect(items[0])}><FileCode size={14} className="shrink-0"/><span className="break-all">{part}</span></button></li>:<li key={part}><details><summary className="cursor-pointer rounded-lg px-2 py-1.5 text-xs hover:bg-base-200"><Folder size={14} className="mr-2 inline"/>{part}</summary><div className="ml-3 border-l border-base-300 pl-1"><RepositoryFileTree paths={items} prefix={prefix+part+'/'} selected={selected} onSelect={onSelect}/></div></details></li>)}</ul>
+}

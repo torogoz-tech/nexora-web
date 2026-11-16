@@ -1,0 +1,1 @@
+export type RepositoryProfileIdentity = { id: string | null; remote_id: string | null; name: string; description: string | null; provider: string | null; status: string; default_branch: string | null; web_url: string | null }

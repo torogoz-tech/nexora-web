@@ -1,0 +1,3 @@
+import {requireRecord} from './requireRecord'
+import type {TaskComment} from '../types/TaskComment'
+export function parseTaskComments(value:unknown):{items:TaskComment[];next_after:string|null}{const v=requireRecord(value);if(!Array.isArray(v.items)||(v.next_after!==null&&typeof v.next_after!=='string'))throw Error('Los comentarios no son válidos.');const items=v.items.map(x=>{const c=requireRecord(x);if(!['id','actor_id','body','created_at'].every(k=>typeof c[k]==='string')||!Number.isSafeInteger(c.sequence))throw Error('El comentario no es válido.');return c as TaskComment});return {items,next_after:v.next_after as string|null}}

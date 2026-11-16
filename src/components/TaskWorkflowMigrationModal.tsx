@@ -1,0 +1,20 @@
+import {useState} from 'react'
+import {useTranslation} from '../hooks/useTranslation'
+import {useApiData} from '../hooks/useApiData'
+import {useIntegrationMutation} from '../hooks/useIntegrationMutation'
+import {parseWorkflowVersionPage} from '../utils/parseWorkflowVersionPage'
+import {parseWorkflowVersion} from '../utils/parseWorkflowVersion'
+import {apiFetch} from '../services/apiFetch'
+import type {TaskDetails} from '../types/TaskDetails'
+import IntegrationDialog from './IntegrationDialog'
+import DataMessage from './DataMessage'
+import TextButton from './TextButton'
+export default function TaskWorkflowMigrationModal({task,onClose,onChanged}:{task:TaskDetails;onClose:()=>void;onChanged:()=>void}){
+ const {t}=useTranslation(),mutation=useIntegrationMutation(),[target,setTarget]=useState(''),[state,setState]=useState(''),[before,setBefore]=useState<number|null>(null)
+ const base=`/api/v1/workflows/${encodeURIComponent(task.workflow_id!)}`
+ const versions=useApiData(`${base}/versions?limit=20${before?`&before=${before}`:''}`,parseWorkflowVersionPage)
+ const current=useApiData(`${base}/versions/${encodeURIComponent(task.workflow_version_id!)}`,parseWorkflowVersion)
+ const destination=useApiData(target?`${base}/versions/${encodeURIComponent(target)}`:null,parseWorkflowVersion)
+ const choices=versions.data?.items.filter(v=>current.data&&v.number>current.data.number)??[]
+ return <IntegrationDialog title={t('Actualizar versión del workflow')} busy={mutation.busy} onClose={onClose}><form className="space-y-4" onSubmit={e=>{e.preventDefault();void mutation.run({task:task.id,revision:task.revision,target,state},async(signal,key)=>{const response=await apiFetch(`/api/v1/tasks/${encodeURIComponent(task.id)}/workflow-migrations`,{method:'POST',signal,headers:{'Content-Type':'application/json','Idempotency-Key':key},body:JSON.stringify({expected_revision:task.revision,workflow_version_id:target,state_mapping:{[task.state_id!]:state},reason:'Explicit workflow version migration'})});if(!response.ok)throw Error(response.status===409?'No se puede migrar mientras existan transiciones pendientes, etapas relacionadas o una rama incompatible. Actualiza y revisa la tarea.':'No pudimos migrar la tarea. Revisa la versión y el estado.');onChanged()})}}><p className="text-sm text-base-content/60">{t('Conserva el historial y cambia la versión de esta tarea. No ejecuta acciones de transición.')}</p><DataMessage loading={versions.loading||current.loading||destination.loading} error={versions.error??current.error??destination.error} onRetry={()=>{versions.reload();current.reload();destination.reload()}}/><label className="flex flex-col gap-2 text-sm">{t('Versión publicada')}<select required className="select select-sm w-full" value={target} onChange={e=>{setTarget(e.target.value);setState('')}}><option value="">{t('Selecciona una opción')}</option>{choices.map(v=><option key={v.id} value={v.id}>{v.name} · v{v.number}</option>)}</select></label>{versions.data?.next_before&&<button type="button" className="btn btn-sm btn-ghost" onClick={()=>setBefore(versions.data!.next_before)}>{t('Versiones anteriores')}</button>}{before&&<button type="button" className="btn btn-sm btn-ghost" onClick={()=>setBefore(null)}>{t('Versiones recientes')}</button>}<label className="flex flex-col gap-2 text-sm">{t('Estado de destino')}<select required className="select select-sm w-full" value={state} disabled={!destination.data||mutation.busy} onChange={e=>setState(e.target.value)}><option value="">{t('Selecciona una opción')}</option>{destination.data?.graph.states.filter(s=>s.terminal===current.data?.graph.states.find(old=>old.id===task.state_id)?.terminal).map(s=><option key={s.id} value={s.id}>{s.name}</option>)}</select></label>{mutation.error&&<p role="alert" className="text-sm text-error">{t(mutation.error)}</p>}<footer className="flex justify-end gap-2"><TextButton label={t('Cancelar')} disabled={mutation.busy} onClick={onClose}/><TextButton type="submit" label={t('Migrar tarea')} variant="primary" disabled={mutation.busy||!state||destination.loading||!!destination.error}/></footer></form></IntegrationDialog>
+}

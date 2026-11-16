@@ -1,0 +1,1 @@
+export type AnalysisProfilePackage = { format: 'nexora.analysis-profile'; schema_version: 1; key: string; version: string; name: string; language_id: string; models: unknown[]; [key: string]: unknown }

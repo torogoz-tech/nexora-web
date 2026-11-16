@@ -1,0 +1,28 @@
+import {
+  ListTodo,
+  Bug,
+  Lightbulb,
+  Search,
+  Wrench,
+  ShieldAlert,
+  GitPullRequest,
+  FileCheck,
+  MessageSquare,
+  FlaskConical,
+  Code,
+  Flag,
+} from 'lucide-react'
+export const taskTypeIcons = [
+  { value: 'list-todo', label: 'Lista', icon: ListTodo },
+  { value: 'bug', label: 'Error', icon: Bug },
+  { value: 'lightbulb', label: 'Idea', icon: Lightbulb },
+  { value: 'search', label: 'Investigación', icon: Search },
+  { value: 'wrench', label: 'Mantenimiento', icon: Wrench },
+  { value: 'shield-alert', label: 'Alerta', icon: ShieldAlert },
+  { value: 'git-pull-request', label: 'Pull Request', icon: GitPullRequest },
+  { value: 'file-check', label: 'Revisión', icon: FileCheck },
+  { value: 'message-square', label: 'Mensaje', icon: MessageSquare },
+  { value: 'flask-conical', label: 'Experimento', icon: FlaskConical },
+  { value: 'code', label: 'Código', icon: Code },
+  { value: 'flag', label: 'Bandera', icon: Flag },
+] as const

@@ -1,0 +1,1 @@
+export type KnowledgeReview={id:string;kind:string;resource_id:string;project_id:string|null;title:string;document_kind:string;status:string;resource_revision:number;current_revision:number;revision:number;can_decide?:boolean;version_id?:string|null}

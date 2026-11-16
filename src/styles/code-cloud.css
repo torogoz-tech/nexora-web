@@ -1,0 +1,68 @@
+.code-cloud {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: clip;
+  pointer-events: none;
+  user-select: none;
+  color: var(--color-base-content);
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black 10%,
+    black 85%,
+    transparent
+  );
+}
+
+.code-cloud-symbol {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-weight: 400;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.code-cloud-symbol:nth-child(3n) {
+  filter: blur(0.5px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .code-cloud-symbol {
+    animation-name: code-cloud-drift;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+  }
+}
+
+.code-cloud-paused .code-cloud-symbol {
+  animation-play-state: paused;
+}
+
+@keyframes code-cloud-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  33% {
+    transform: translate3d(10px, -18px, 0);
+  }
+  66% {
+    transform: translate3d(-6px, -30px, 0);
+  }
+}
+
+@media (width < 40rem) {
+  .code-cloud-symbol:nth-child(2n) {
+    display: none;
+  }
+  .code-cloud {
+    opacity: 0.6;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .code-cloud-toggle {
+    display: none;
+  }
+}

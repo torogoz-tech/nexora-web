@@ -1,0 +1,14 @@
+import {releaseCompositionFailureMessage} from '../utils/releaseCompositionFailureMessage'
+import {useApiData} from '../hooks/useApiData'
+import {useTranslation} from '../hooks/useTranslation'
+import {useIntegrationMutation} from '../hooks/useIntegrationMutation'
+import {apiFetch} from '../services/apiFetch'
+import {requireRecord} from '../utils/requireRecord'
+import type {TaskRelease} from '../types/TaskRelease'
+import DataMessage from './DataMessage'
+export default function ReleaseComposition({release,canManage,onChanged}:{release:TaskRelease;canManage:boolean;onChanged:()=>void}){
+ const {t}=useTranslation(),mutation=useIntegrationMutation(),base=`/api/v1/projects/${encodeURIComponent(release.project_id)}/releases/${encodeURIComponent(release.id)}/composition`
+ const jobs=useApiData(base,value=>{const data=requireRecord(value);if(!Array.isArray(data.items)||data.items.some(item=>!item||typeof item.id!=='string'||!['queued','running','succeeded','failed'].includes(item.status)))throw Error('La composición recibida no es válida.');return data.items as {id:string;status:string;record:{error?:string}}[]})
+ const latest=jobs.data?.[0],composed=release.repositories?.every(repository=>repository.composition_status==='composed')
+ return <section className="mt-4 border-t border-base-300 pt-4"><h3 className="text-sm font-semibold">{t('Composición selectiva')}</h3><p className="my-2 text-xs text-base-content/60">{t('Crea la rama desde producción aplicando exclusivamente los commits vinculados a las tareas seleccionadas. Los conflictos detienen la composición.')}</p><DataMessage loading={jobs.loading} error={jobs.error} onRetry={jobs.reload}/>{latest&&<p className="my-2 text-xs">{t(({queued:'Composición en cola',running:'Componiendo publicación',succeeded:'Rama de publicación preparada',failed:'No se pudo componer la publicación'} as Record<string,string>)[latest.status]??latest.status)}</p>}{latest?.record.error&&<p role="alert" className="my-2 text-xs text-error">{t(releaseCompositionFailureMessage(latest.record.error))}</p>}{canManage&&!composed&&release.status==='prepared'&&<button className="btn btn-sm btn-primary" disabled={mutation.busy||latest?.status==='queued'||latest?.status==='running'} onClick={()=>void mutation.run({release:release.id,revision:release.revision},async(signal,key)=>{const response=await apiFetch(base,{method:'POST',headers:{'Content-Type':'application/json','Idempotency-Key':key},body:JSON.stringify({expected_revision:release.revision}),signal});if(!response.ok)throw Error('No pudimos preparar la composición. Actualiza la publicación y revisa los commits vinculados.');jobs.reload();onChanged()})}>{t('Componer rama de publicación')}</button>}<button type="button" className="btn btn-sm btn-ghost ml-2" onClick={()=>{jobs.reload();onChanged()}}>{t('Actualizar')}</button>{mutation.error&&<p role="alert" className="mt-2 text-sm text-error">{t(mutation.error)}</p>}</section>
+}

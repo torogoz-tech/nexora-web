@@ -1,0 +1,15 @@
+import EditorWorker from 'monaco-editor/editor/editor.worker?worker'
+import HtmlWorker from 'monaco-editor/language/html/html.worker?worker'
+import CssWorker from 'monaco-editor/language/css/css.worker?worker'
+import JsonWorker from 'monaco-editor/language/json/json.worker?worker'
+
+export function configureMonacoWorkers() {
+  self.MonacoEnvironment = {
+    getWorker(_id, label) {
+      if (label === 'html' || label === 'handlebars' || label === 'razor') return new HtmlWorker()
+      if (label === 'json') return new JsonWorker()
+      if (label === 'css' || label === 'scss' || label === 'less') return new CssWorker()
+      return new EditorWorker()
+    },
+  }
+}

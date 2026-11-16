@@ -1,0 +1,2 @@
+import {requireRecord} from './requireRecord'
+export function parseOrganizationStickers(value:unknown){const record=requireRecord(value);if(!Array.isArray(record.items))throw Error('El catálogo de stickers no es válido.');return record.items.map(value=>{const item=requireRecord(value);if(typeof item.id!=='string'||!/^stk_[a-zA-Z0-9_]+$/.test(item.id)||typeof item.name!=='string'||item.url!==`/api/v1/stickers/${item.id}/content`)throw Error('El catálogo de stickers no es válido.');return {id:item.id,name:item.name,url:String(item.url)}})}

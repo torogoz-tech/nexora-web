@@ -1,0 +1,1 @@
+export type PersonalWorkBlock = {id:string;actor_id:string;title:string;date:string;start_time:string;end_time:string;minutes:number;task_id:string|null;overtime_request_id:string|null;note:string|null;revision:number}

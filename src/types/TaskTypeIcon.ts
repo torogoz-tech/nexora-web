@@ -1,0 +1,13 @@
+export type TaskTypeIcon =
+  | 'list-todo'
+  | 'bug'
+  | 'lightbulb'
+  | 'search'
+  | 'wrench'
+  | 'shield-alert'
+  | 'git-pull-request'
+  | 'file-check'
+  | 'message-square'
+  | 'flask-conical'
+  | 'code'
+  | 'flag'

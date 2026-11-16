@@ -1,0 +1,7 @@
+import type { CalendarActivity } from '../types/CalendarActivity'
+import { isCalendarDate } from './isCalendarDate'
+export function parseCalendarActivities(value: unknown): { items: CalendarActivity[]; next_after: string | null } {
+  const page = value as { items?: CalendarActivity[]; next_after?: unknown }
+  if (!page || !Array.isArray(page.items) || !(page.next_after === null || typeof page.next_after === 'string') || page.items.some(item => !item || ['id', 'created_by', 'creator_name', 'title', 'description', 'location'].some(key => typeof item[key as keyof CalendarActivity] !== 'string') || !isCalendarDate(item.start_date) || !isCalendarDate(item.end_date) || typeof item.all_day !== 'boolean' || !Number.isInteger(item.revision) || typeof item.can_edit !== 'boolean' || (item.mode!=null&&!['virtual','in_person'].includes(item.mode)) || (item.attendance_required!==undefined&&typeof item.attendance_required!=='boolean') || (item.my_attendance!=null&&!['attending','declined'].includes(item.my_attendance)) || [item.attending_count,item.declined_count].some(count=>count!==undefined&&(!Number.isSafeInteger(count)||count<0)) || (!item.all_day && (![item.start_time, item.end_time].every(time => typeof time === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(time)))))) throw Error('Las actividades del calendario no son válidas.')
+  return { items: page.items, next_after: page.next_after }
+}

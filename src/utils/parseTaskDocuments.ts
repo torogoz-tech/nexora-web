@@ -1,0 +1,3 @@
+import {requireRecord} from './requireRecord'
+import type {TaskDocument} from '../types/TaskDocument'
+export function parseTaskDocuments(value:unknown):{items:TaskDocument[];next_after:string|null}{const v=requireRecord(value);if(!Array.isArray(v.items)||(v.next_after!==null&&typeof v.next_after!=='string'))throw Error('Los documentos no son válidos.');return {items:v.items.map(x=>{const d=requireRecord(x);if(!['id','task_id','name','uploaded_by','created_at'].every(k=>typeof d[k]==='string')||!Number.isSafeInteger(d.size_bytes)||Number(d.size_bytes)<1)throw Error('El documento no es válido.');return d as TaskDocument}),next_after:v.next_after as string|null}}

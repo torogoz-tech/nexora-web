@@ -1,0 +1,1 @@
+export const taskStickers=[{id:'celebrate',emoji:'🎉',label:'Celebración'},{id:'great',emoji:'🙌',label:'Buen trabajo'},{id:'rocket',emoji:'🚀',label:'Vamos'},{id:'thanks',emoji:'💛',label:'Gracias'},{id:'done',emoji:'✅',label:'Listo'},{id:'thinking',emoji:'🤔',label:'Pensando'},{id:'coffee',emoji:'☕',label:'Café'},{id:'fire',emoji:'🔥',label:'Excelente'}] as const

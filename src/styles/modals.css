@@ -1,0 +1,7 @@
+/* The full-screen modal layer dims and softens the page, keeping its dialog crisp. */
+.modal:is([open], .modal-open, :popover-open, :target),
+.modal-toggle:checked + .modal {
+  background-color: rgb(0 0 0 / 60%);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}

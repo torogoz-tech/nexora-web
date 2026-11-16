@@ -1,0 +1,60 @@
+@import 'tailwindcss';
+@import './shell.css';
+@import './auth.css';
+@import './code-cloud.css';
+@import './forms.css';
+@import './modals.css';
+@import './knowledge.css';
+@import './kanban.css';
+
+@plugin "daisyui" {
+  themes:
+    corporate --default,
+    black --prefersdark;
+}
+@plugin "tailwindcss-animate";
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+    min-width: 320px;
+  }
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+  }
+  button:not(:disabled),
+  a {
+    cursor: pointer;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+  }
+}
+
+.monaco-editor .git-diff-added { background: rgb(16 185 129 / 16%); }
+.monaco-editor .git-diff-removed { background: rgb(239 68 68 / 16%); }
+.monaco-editor .git-diff-added-gutter { border-left: 3px solid #10b981; }
+.monaco-editor .git-diff-removed-gutter { border-left: 3px solid #ef4444; }
+
+/* Shared danger palette: readable text and restrained destructive actions. */
+[data-theme="corporate"] {
+  --color-error: #b44552;
+  --color-error-content: #ffffff;
+}
+[data-theme="black"] {
+  --color-error: #e18b94;
+  --color-error-content: #291216;
+}
+
+@media print {
+  body:has(.request-report) #context-sidebar,
+  body:has(.request-report) aside,
+  body:has(.request-report) .print\:hidden { display: none !important; }
+  body:has(.request-report), body:has(.request-report) main, .request-report { background: white !important; color: black !important; overflow: visible !important; height: auto !important; }
+  .request-report { width: 100% !important; }
+  .request-report li { break-inside: avoid; }
+}

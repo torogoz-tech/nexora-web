@@ -1,0 +1,9 @@
+import {Link} from 'react-router'
+import {useTranslation} from '../hooks/useTranslation'
+import type {AnalysisProfileSelectionReportProps} from '../types/AnalysisProfileSelectionReportProps'
+export default function RepositoryAnalysisProfileSelection({report,browseBase}:AnalysisProfileSelectionReportProps){
+ const {t}=useTranslation()
+ const href=(group:string)=>browseBase?`${browseBase}&group=${encodeURIComponent(group)}`:undefined
+ const browse=(group:string,count:number)=>href(group)?<Link className="link text-xs" to={href(group)!}>{t('Ver archivos')} · {count}</Link>:<span className="text-xs">{count}</span>
+ return <section className="mt-5 min-w-0 text-sm">{report.status==='partial'&&<div role="status" className="mb-5 rounded-xl bg-warning/10 p-3 text-xs"><h3 className="font-semibold text-warning">{t('Finalizado con observaciones')}</h3><p className="my-2 text-base-content/65">{t('El proceso terminó. Algunos archivos requieren revisión; consulta sus detalles sin perder el resultado del análisis.')}</p>{browse('skipped',report.skipped_files?.length??0)}</div>}<h3 className="font-semibold">{t('Perfiles usados en la última sincronización')}</h3><ul className="mt-3 divide-y divide-base-300">{report.profiles.map(profile=><li key={profile.id} className="flex flex-wrap items-center justify-between gap-3 py-3"><div><h4 className="font-medium">{profile.name}</h4><p className="mt-1 text-xs text-base-content/50">{profile.version} · {profile.language_id}</p></div>{browse(profile.id,profile.files.length)}</li>)}</ul><div className="mt-4 space-y-3">{report.uncovered_files.length>0&&<p>{t('Archivos sin perfil compatible')} · {browse('uncovered',report.uncovered_files.length)}</p>}{report.excluded_files.length>0&&<p>{t('Archivos excluidos')} · {browse('excluded',report.excluded_files.length)}</p>}{!!report.decoded_files?.length&&<p>{t('Archivos con codificación convertida')} · {browse('decoded',report.decoded_files.length)}</p>}</div></section>
+}

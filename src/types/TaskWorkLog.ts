@@ -1,0 +1,1 @@
+export type TaskWorkLog = {title?:string|null;start_time?:string|null;end_time?:string|null;id:string;task_id:string;actor_id:string;actor_name?:string|null;date:string;minutes:number;note:string|null;overtime_request_id:string|null;revision:number;created_at:string;updated_at:string}
