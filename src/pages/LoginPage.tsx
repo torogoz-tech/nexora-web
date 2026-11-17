@@ -5,13 +5,12 @@ import IconButton from '../components/IconButton'
 import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router'
-import { RefreshCw, Eye, EyeOff, KeyRound, ShieldCheck } from 'lucide-react'
+import { RefreshCw, Eye, EyeOff, KeyRound } from 'lucide-react'
 import AuthLayout from '../layouts/AuthLayout'
 import SessionStatus from '../components/SessionStatus'
 import { useAuth } from '../hooks/useAuth'
 import { useAuthenticationMethods } from '../hooks/useAuthenticationMethods'
 import { login } from '../services/login'
-import { loginWithPasskey } from '../services/loginWithPasskey'
 import { startOidcLogin } from '../services/startOidcLogin'
 import { getReturnPath } from '../utils/getReturnPath'
 
@@ -89,19 +88,6 @@ export default function LoginPage() {
     } finally {
       if (!controller.signal.aborted) setBusy(false)
     }
-  }
-  async function passkeyLogin() {
-    if (busy || !username.trim() || typeof window === 'undefined' || !window.PublicKeyCredential || !navigator.credentials?.get) return
-    const controller = new AbortController()
-    request.current = controller
-    setBusy(true)
-    setError(null)
-    try {
-      const session = await loginWithPasskey(username.trim(), controller.signal)
-      if (!controller.signal.aborted) { auth.acceptSession({ ...session, displayName: username.trim() }); navigate(destination, { replace: true }) }
-    } catch (failure) {
-      if (!controller.signal.aborted) setError(failure instanceof Error ? failure.message : 'No pudimos iniciar sesión con Passkey.')
-    } finally { if (!controller.signal.aborted) setBusy(false) }
   }
 
   if (auth.status === 'checking' || auth.status === 'unavailable')
@@ -217,7 +203,6 @@ export default function LoginPage() {
                   aria-busy={busy}
                   label={busy ? t('Conectando…') : t('Iniciar sesión')}
                 ></TextButton>
-                {typeof window !== 'undefined' && !!window.PublicKeyCredential && !!navigator.credentials?.get && <TextButton type="button" variant="outline" className="min-h-10 w-full" disabled={busy || !username.trim()} onClick={() => void passkeyLogin()} label={t('Iniciar sesión con Passkey')}><ShieldCheck size={16} aria-hidden="true" /></TextButton>}
               </form>
             )}
             {!methods.local_enabled && methods.oidc.length === 0 && (
