@@ -22,7 +22,6 @@ export default function TaskPriorityBadge({
     <span
       className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg px-2 py-1 text-xs font-medium ${styles[priority]}`}
     >
-      <span aria-hidden="true" className="size-1.5 rounded-full bg-current" />
       {t(labels[priority])}
     </span>
   )

@@ -35,7 +35,7 @@ export default function DeveloperBoardVersion({
         className="kanban-version"
         aria-label={t('Tablero de versión {0}', { '0': version.data.number })}
       >
-        <div className="min-w-0">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <div className="mb-2 flex justify-end gap-1 px-4 sm:px-5"><button type="button" className="btn btn-sm btn-square btn-ghost" aria-label={t('Desplazar tablero a la izquierda')} onClick={() => columns.current?.scrollBy({ left: -360, behavior: 'smooth' })}><ChevronLeft size={16}/></button><button type="button" className="btn btn-sm btn-square btn-ghost" aria-label={t('Desplazar tablero a la derecha')} onClick={() => columns.current?.scrollBy({ left: 360, behavior: 'smooth' })}><ChevronRight size={16}/></button></div>
         <div
           ref={columns}
@@ -58,14 +58,6 @@ export default function DeveloperBoardVersion({
                 aria-label={state.name}
               >
                 <header className="flex shrink-0 items-center gap-2.5 border-b border-base-300/60 px-4 py-4">
-                  <span
-                    className="size-2 shrink-0 rounded-sm"
-                    style={{
-                      backgroundColor:
-                        state.color ?? 'var(--color-base-content)',
-                    }}
-                    aria-hidden="true"
-                  />
                   <h2 style={{color:state.color}} className="min-w-0 flex-1 break-words text-sm font-semibold">
                     {state.name}
                   </h2>

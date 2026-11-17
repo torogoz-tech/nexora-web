@@ -1,5 +1,6 @@
 import { requireRecord } from './requireRecord'
 import { parseOrganizationMembers } from './parseOrganizationMembers'
+import { parseTaskTypeIcon } from './parseTaskTypeIcon'
 import type { MemberProfileData } from '../types/MemberProfileData'
 export function parseMemberProfile(value: unknown): MemberProfileData {
  const v = requireRecord(value)
@@ -15,7 +16,8 @@ export function parseMemberProfile(value: unknown): MemberProfileData {
   repositories: list(v.repositories).map(r => ({ id: string(r.id), project_id: string(r.project_id), name: string(r.name), provider: r.provider == null ? null : string(r.provider), status: string(r.status) })),
   priority_tasks: list(v.priority_tasks).map(task => {
    if (task.priority !== 'high' && task.priority !== 'critical') return fail()
-   return { id: string(task.id), project_id: string(task.project_id), title: string(task.title), priority: task.priority }
+   if (task.type_color !== undefined && typeof task.type_color !== 'string' && task.type_color !== null) return fail()
+   return { id: string(task.id), project_id: string(task.project_id), title: string(task.title), priority: task.priority, type_code: task.type_code === undefined ? 'task' : string(task.type_code), type_name: task.type_name === undefined ? 'Tarea' : string(task.type_name), type_icon: parseTaskTypeIcon(task.type_icon), type_color: task.type_color === undefined ? null : task.type_color }
   }),
   workflow_tasks: list(v.workflow_tasks ?? []).map(task=>({id:string(task.id),project_id:task.project_id==null?null:string(task.project_id),title:string(task.title),state:string(task.state),workflow:string(task.workflow),color:task.color==null?null:string(task.color),priority:string(task.priority)})),
   contributions: list(v.contributions).map(day => {
