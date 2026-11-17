@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0
+
+- Added member incorporation requests for OIDC identities and invitations.
+- Added approved-member navigation and role visibility.
+- Moved Passkey authentication out of primary login into the second-factor gate.
+- Added TOTP/Passkey selection with the configured skip limit.
+
 ## 0.2.0
 
 - Prepared the web client for the versioned container release.
