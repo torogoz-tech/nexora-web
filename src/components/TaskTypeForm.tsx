@@ -29,7 +29,6 @@ export default function TaskTypeForm({
           if (mutation.busy) return
           const input = type
             ? {
-                purpose,
                 icon,
                 name: name.trim(),
                 description: description.trim(),
@@ -86,7 +85,7 @@ export default function TaskTypeForm({
               onChange={(e) => setName(e.target.value)}
             />
           </label>
-          <label className="flex flex-col gap-2 text-sm">{t('Propósito')}<select className="select w-full" aria-label={t('Propósito')} value={purpose} onChange={event=>setPurpose(event.target.value as typeof purpose)}><option value="general">{t('General')}</option><option value="product_design">{t('Diseño de producto')}</option><option value="implementation">{t('Implementación')}</option></select></label>
+          <label className="flex flex-col gap-2 text-sm">{t('Propósito')}<select className="select w-full" aria-label={t('Propósito')} value={purpose} disabled={!!type} onChange={event=>setPurpose(event.target.value as typeof purpose)}><option value="general">{t('General')}</option><option value="product_design">{t('Diseño de producto')}</option><option value="implementation">{t('Implementación')}</option></select></label>
           <TaskTypeIconPicker value={icon} onChange={setIcon} />
           <label className="flex flex-col gap-2 text-sm">
             {' '}
@@ -122,7 +121,7 @@ export default function TaskTypeForm({
           {type && (
             <label className="flex flex-col gap-2 text-sm">
               {' '}
-              {t('Motivo del cambio')}{' '}
+              {t('Motivo del cambio')}{' '}<span className="text-xs text-base-content/40">{t('Obligatorio para conservar la trazabilidad del cambio')}</span>
               <textarea
                 className="textarea w-full"
                 required

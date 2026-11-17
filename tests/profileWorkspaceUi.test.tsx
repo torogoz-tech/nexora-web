@@ -16,7 +16,7 @@ vi.mock('../src/components/MemberImportantDates',()=>({default:()=>null}))
 vi.mock('../src/components/DeveloperRatings',()=>({default:()=>createElement('p',null,'Developer ratings')}))
 vi.mock('../src/components/ProfileContributions',()=>({default:()=>createElement('p',null,'Contributions')}))
 vi.mock('../src/components/TaskTypeForm',()=>({default:()=>createElement('form',{'aria-label':'Task type form'})}))
-function render(element:ReturnType<typeof createElement>){return renderToStaticMarkup(createElement(MemoryRouter,null,element))}
+function render(element:ReturnType<typeof createElement>){return renderToStaticMarkup(createElement(MemoryRouter,null,createElement(WorkspacePermissionsContext.Provider,{value:{actor_id:'self',role:'developer',grants:[{capability:'repositories:read',project_id:null}]}},element)))}
 it('keeps MCP settings out of the profile and repositories last',()=>{
  fixture.memberId='self';fixture.role='developer'
  const own=render(createElement(MemberProfilePage))
