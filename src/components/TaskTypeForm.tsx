@@ -18,8 +18,7 @@ export default function TaskTypeForm({
     [icon, setIcon] = useState<TaskTypeIcon>(type?.icon ?? 'list-todo'),
     [name, setName] = useState(type?.name ?? ''),
     [description, setDescription] = useState(type?.description ?? ''),
-    [color, setColor] = useState(type?.color ?? ''),
-    [reason, setReason] = useState('')
+    [color, setColor] = useState(type?.color ?? '')
   const mutation = useIntegrationMutation()
   return (
       <form
@@ -34,7 +33,6 @@ export default function TaskTypeForm({
                 description: description.trim(),
                 color: color || null,
                 expected_revision: revision,
-                reason: reason.trim(),
               }
             : {
                 code: code.trim(),
@@ -118,19 +116,6 @@ export default function TaskTypeForm({
             />
             <span className="text-xs">{t('Del tema')}</span>
           </label>
-          {type && (
-            <label className="flex flex-col gap-2 text-sm">
-              {' '}
-              {t('Motivo del cambio')}{' '}<span className="text-xs text-base-content/40">{t('Obligatorio para conservar la trazabilidad del cambio')}</span>
-              <textarea
-                className="textarea w-full"
-                required
-                maxLength={4000}
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-              />
-            </label>
-          )}
         </fieldset>
         {mutation.error && (
           <p role="alert" className="text-sm text-error">
@@ -145,8 +130,7 @@ export default function TaskTypeForm({
             disabled={
               mutation.busy ||
               !name.trim() ||
-              !code.trim() ||
-              (!!type && !reason.trim())
+              !code.trim()
             }
           >
             <Save size={16} />
