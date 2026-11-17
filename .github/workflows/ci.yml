@@ -50,7 +50,8 @@ jobs:
           path: dist
       - name: Publish image to GHCR
         env:
-          NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
         run: |
-          echo "$NUGET_TOKEN" | docker login ghcr.io --username "${GITHUB_ACTOR}" --password-stdin
+          test -n "$GHCR_TOKEN" || { echo "GHCR_TOKEN is not configured" >&2; exit 1; }
+          echo "$GHCR_TOKEN" | docker login ghcr.io --username "${GITHUB_ACTOR}" --password-stdin
           docker build --build-context web-dist=dist --tag "ghcr.io/${GITHUB_REPOSITORY}:0.2.0" --push .
