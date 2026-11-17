@@ -3,9 +3,8 @@ import {useAlphabeticOrder} from '../hooks/useAlphabeticOrder'
 import { WorkspacePermissionsContext } from '../app/WorkspacePermissionsContext'
 import { useContext, useState } from 'react'
 import { Link } from 'react-router'
-import MemberWorkflowEditor from '../components/MemberWorkflowEditor'
 import UserAvatar from '../components/UserAvatar'
-import { ShieldUser, MailPlus, Search, Send, X, Mail, Workflow } from 'lucide-react'
+import { MailPlus, Search, Send, X, Mail, Workflow } from 'lucide-react'
 import { useTranslation } from '../hooks/useTranslation'
 import { useApiData } from '../hooks/useApiData'
 import { useIntegrationMutation } from '../hooks/useIntegrationMutation'
@@ -17,31 +16,23 @@ import TextButton from '../components/TextButton'
 import IntegrationDialog from '../components/IntegrationDialog'
 import InviteMemberModal from '../components/InviteMemberModal'
 import DataMessage from '../components/DataMessage'
-import MemberPositionEditor from '../components/MemberPositionEditor'
-import MemberRoleModal from '../components/MemberRoleModal'
-import { memberRoleLabel } from '../utils/memberRoleLabel'
 import MemberAccessMethods from '../components/MemberAccessMethods'
-import MemberArchiveAction from '../components/MemberArchiveAction'
 import Dropdown from '../components/Dropdown'
-import type { OrganizationMember } from '../types/OrganizationMember'
 import type { MemberInvitation } from '../types/MemberInvitation'
 export default function MembersPage(){
  const order=useAlphabeticOrder()
   const {t,dateLocale}=useTranslation()
   const permissions=useContext(WorkspacePermissionsContext)
   const admin=permissions?.grants.some(g=>g.capability==='installation:manage'&&g.project_id===null)??false
-  const manageProjects=permissions?.grants.some(g=>g.capability==='member-projects:manage')??false
   const members=useApiData('/api/v1/settings/members',parseOrganizationMembers)
   const invitations=useApiData(admin?'/api/v1/settings/invitations':null,parseMemberInvitations)
   const mutation=useIntegrationMutation()
-  const [roleMember,setRoleMember]=useState<OrganizationMember|null>(null)
-  const [positions, setPositions] = useState<Record<string, { position: string; position_revision: number }>>({})
   const [search,setSearch]=useState('')
   const [archiveFilter,setArchiveFilter]=useState('current')
   const [open,setOpen]=useState(false)
   const [revoke,setRevoke]=useState<MemberInvitation|null>(null)
   const matches=(...values:string[])=>values.join(' ').toLocaleLowerCase().includes(search.toLocaleLowerCase())
-  const rows=members.data?.map(member => ({ ...member, ...(positions[member.id] && positions[member.id].position_revision >= (member.position_revision ?? 0) ? positions[member.id] : {}) })).filter(v=>(archiveFilter==='all'||archiveFilter==='archived'?archiveFilter==='all'||v.archived:!v.archived)&&matches(v.name,v.email,v.username,v.position??''))??[]
+  const rows=members.data?.filter(v=>(archiveFilter==='all'||archiveFilter==='archived'?archiveFilter==='all'||v.archived:!v.archived)&&matches(v.name,v.email,v.username,v.position??''))??[]
   const pending=archiveFilter==='archived'?[]:invitations.data?.filter(v=>v.status!=='accepted'&&matches(v.name,v.email))??[]
   const statuses={pending:'Invitación pendiente',accepted:'Aceptada',expired:'Invitación vencida',revoked:'Invitación revocada'}
   async function change(item:MemberInvitation,action:'resend'|'revoke'){
@@ -60,17 +51,16 @@ export default function MembersPage(){
           {[...rows].sort((a,b)=>order.compare(a.name,b.name)).map(member=><tr key={member.id} className="align-middle hover:bg-base-200/30">
             <td className="px-4 py-3"><div className="flex min-w-0 items-center gap-3"><Link to={`/settings/members/${encodeURIComponent(member.id)}`} aria-label={t('Ver perfil de {0}',{'0':member.name})}><UserAvatar actorId={member.id} revision={member.avatar_revision??0} name={member.name}/></Link><div className="min-w-0"><Link className="break-words font-semibold hover:underline" to={`/settings/members/${encodeURIComponent(member.id)}`}>{member.name}</Link><p className="mt-0.5 break-words text-xs text-base-content/55">{member.position || t('Sin posición laboral')}</p>{member.email&&<p className="mt-1 break-all text-xs text-base-content/55">{member.email}</p>}</div></div></td>
             <td className="px-4 py-3"><span className={`rounded-lg px-2 py-1 text-xs ${member.archived?'bg-base-200 text-base-content/55':member.active?'bg-success/10 text-success':'bg-warning/10 text-warning'}`}>{t(member.archived?'Archivado':member.active?'Activo':'Suspendido')}</span></td>
-            <td className="px-4 py-3 text-xs text-base-content/65"><span className="inline-flex items-center gap-1.5"><ShieldUser size={13}/>{t(memberRoleLabel(member.role))}</span></td>
+            <td className="px-4 py-3 text-xs text-base-content/65">{member.position || t('Sin posición laboral')}</td>
             <td className="px-4 py-3 text-xs text-base-content/65"><MemberAccessMethods member={member}/>{member.workflow_name&&<span className="mt-1 inline-flex items-center gap-1.5"><Workflow size={13}/>{member.workflow_name}</span>}</td>
             <td className="px-4 py-3 text-xs text-base-content/50">{member.last_login_at?<time dateTime={member.last_login_at}>{new Date(member.last_login_at).toLocaleString(dateLocale,{dateStyle:'short',timeStyle:'short'})}</time>:t('Sin ingresos registrados')}</td>
-            <td className="px-4 py-3"><div className="flex justify-end gap-1"><MemberWorkflowEditor member={member} onSaved={members.reload}/>{admin&&<MemberPositionEditor member={member} onSaved={(position, position_revision) => setPositions(current => ({ ...current, [member.id]: { position, position_revision } }))}/>} {(admin||(manageProjects&&member.role!==null&&member.role!=='super_admin'))&&<IconButton disabled={member.archived} label={t(admin?'Configurar rol de {0}':'Configurar proyectos de {0}',{'0':member.name})} onClick={()=>setRoleMember(member)}><ShieldUser size={17}/></IconButton>}{admin&&<MemberArchiveAction member={member} onSaved={members.reload}/>}</div></td>
+            <td className="px-4 py-3"><div className="flex justify-end"><Link className="text-xs font-medium text-primary hover:underline" to={`/settings/members/${encodeURIComponent(member.id)}`}>{t('Ver perfil')}</Link></div></td>
           </tr>)}
           {[...pending].sort((a,b)=>order.compare(a.name,b.name)).map(invitation=><tr key={invitation.id}><td className="px-4 py-3"><div className="flex items-center gap-3"><Mail size={18}/><div><strong>{invitation.name}</strong><p className="text-xs text-base-content/60">{invitation.email}</p></div></div></td><td className="px-4 py-3 text-xs">{t(statuses[invitation.status])}</td><td colSpan={3} className="px-4 py-3 text-xs text-base-content/50">{t('Vencimiento')}: {new Date(invitation.expires_at).toLocaleString(dateLocale)}</td><td className="px-4 py-3"><div className="flex justify-end gap-1">{['pending','expired'].includes(invitation.status)&&<><IconButton disabled={mutation.busy} label={t('Reenviar invitación')} onClick={()=>void change(invitation,'resend')}><Send size={16}/></IconButton><IconButton disabled={mutation.busy} label={t('Revocar invitación')} onClick={()=>{mutation.clearError();setRevoke(invitation)}}><X size={16}/></IconButton></>}</div></td></tr>)}
         </tbody>
       </table>
     </div>
     {!members.loading&&!invitations.loading&&!members.error&&!invitations.error&&rows.length+pending.length===0&&<p className="py-8 text-center text-sm text-base-content/55">{t('No hay miembros ni invitaciones que coincidan con la búsqueda.')}</p>}
-    {roleMember&&<MemberRoleModal member={roleMember} onClose={()=>setRoleMember(null)} onSaved={()=>{setRoleMember(null);members.reload()}}/>}
     {mutation.error&&!open&&!revoke&&<p role="alert" className="mt-4 text-sm text-error">{t(mutation.error)}</p>}
     {open&&<InviteMemberModal onClose={()=>setOpen(false)} onCreated={()=>{setOpen(false);invitations.reload()}}/>}
     {revoke&&<IntegrationDialog title={t('Revocar invitación')} busy={mutation.busy} onClose={()=>{if(!mutation.busy)setRevoke(null)}}><p className="text-sm text-base-content/65">{t('El enlace enviado a {0} dejará de funcionar.',{'0':revoke.email})}</p>{mutation.error&&<p role="alert" className="mt-4 text-sm text-error">{t(mutation.error)}</p>}<div className="mt-6 flex justify-end gap-2"><TextButton label={t('Cancelar')} disabled={mutation.busy} onClick={()=>setRevoke(null)}/><TextButton label={t('Revocar invitación')} variant="error" disabled={mutation.busy} aria-busy={mutation.busy} onClick={()=>void change(revoke,'revoke')}/></div></IntegrationDialog>}

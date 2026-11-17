@@ -18,8 +18,7 @@ export default function TaskTypeForm({
     [icon, setIcon] = useState<TaskTypeIcon>(type?.icon ?? 'list-todo'),
     [name, setName] = useState(type?.name ?? ''),
     [description, setDescription] = useState(type?.description ?? ''),
-    [color, setColor] = useState(type?.color ?? ''),
-    [reason, setReason] = useState('')
+    [color, setColor] = useState(type?.color ?? '')
   const mutation = useIntegrationMutation()
   return (
       <form
@@ -29,13 +28,11 @@ export default function TaskTypeForm({
           if (mutation.busy) return
           const input = type
             ? {
-                purpose,
                 icon,
                 name: name.trim(),
                 description: description.trim(),
                 color: color || null,
                 expected_revision: revision,
-                reason: reason.trim(),
               }
             : {
                 code: code.trim(),
@@ -86,7 +83,7 @@ export default function TaskTypeForm({
               onChange={(e) => setName(e.target.value)}
             />
           </label>
-          <label className="flex flex-col gap-2 text-sm">{t('Propósito')}<select className="select w-full" aria-label={t('Propósito')} value={purpose} onChange={event=>setPurpose(event.target.value as typeof purpose)}><option value="general">{t('General')}</option><option value="product_design">{t('Diseño de producto')}</option><option value="implementation">{t('Implementación')}</option></select></label>
+          <label className="flex flex-col gap-2 text-sm">{t('Propósito')}<select className="select w-full" aria-label={t('Propósito')} value={purpose} disabled={!!type} onChange={event=>setPurpose(event.target.value as typeof purpose)}><option value="general">{t('General')}</option><option value="product_design">{t('Diseño de producto')}</option><option value="implementation">{t('Implementación')}</option></select></label>
           <TaskTypeIconPicker value={icon} onChange={setIcon} />
           <label className="flex flex-col gap-2 text-sm">
             {' '}
@@ -119,19 +116,6 @@ export default function TaskTypeForm({
             />
             <span className="text-xs">{t('Del tema')}</span>
           </label>
-          {type && (
-            <label className="flex flex-col gap-2 text-sm">
-              {' '}
-              {t('Motivo del cambio')}{' '}
-              <textarea
-                className="textarea w-full"
-                required
-                maxLength={4000}
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-              />
-            </label>
-          )}
         </fieldset>
         {mutation.error && (
           <p role="alert" className="text-sm text-error">
@@ -146,8 +130,7 @@ export default function TaskTypeForm({
             disabled={
               mutation.busy ||
               !name.trim() ||
-              !code.trim() ||
-              (!!type && !reason.trim())
+              !code.trim()
             }
           >
             <Save size={16} />

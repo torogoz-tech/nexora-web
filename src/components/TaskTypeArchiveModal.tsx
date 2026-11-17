@@ -1,6 +1,5 @@
 import { useTranslation } from '../hooks/useTranslation'
 import TextButton from './TextButton'
-import { useState } from 'react'
 import { Archive, ArchiveRestore } from 'lucide-react'
 import IntegrationDialog from './IntegrationDialog'
 import { useIntegrationMutation } from '../hooks/useIntegrationMutation'
@@ -12,8 +11,7 @@ export default function TaskTypeArchiveModal({
   onSaved,
 }: TaskTypeEditorModalProps) {
   const { t } = useTranslation()
-  const mutation = useIntegrationMutation(),
-    [reason, setReason] = useState('')
+  const mutation = useIntegrationMutation()
   if (!type) return null
   return (
     <IntegrationDialog
@@ -28,7 +26,6 @@ export default function TaskTypeArchiveModal({
           const input = {
             expected_revision: type.revision,
             archived: !type.archived,
-            reason: reason.trim(),
           }
           void mutation.run(input, async (signal, key) => {
             await writeTaskTypeSettings(
@@ -52,18 +49,6 @@ export default function TaskTypeArchiveModal({
                 'Dejará de estar disponible para crear tareas. Las tareas existentes se conservan.',
               )}
         </p>
-        <label className="flex flex-col gap-2 text-sm">
-          {' '}
-          {t('Motivo')}{' '}
-          <textarea
-            className="textarea w-full"
-            required
-            maxLength={4000}
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            disabled={mutation.busy}
-          />
-        </label>
         {mutation.error && (
           <p role="alert" className="text-sm text-error">
             {t(mutation.error)}
@@ -78,7 +63,7 @@ export default function TaskTypeArchiveModal({
                 ? t('Restaurar tipo de tarea')
                 : t('Archivar tipo de tarea')
             }
-            disabled={mutation.busy || !reason.trim()}
+            disabled={mutation.busy}
           >
             {type.archived ? (
               <ArchiveRestore size={16} />

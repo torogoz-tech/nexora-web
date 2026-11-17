@@ -1,0 +1,56 @@
+name: Web
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run lint
+  build-artifact:
+    needs: quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: nexora-web-0.2.0
+          path: dist
+          if-no-files-found: error
+          retention-days: 7
+  image:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [quality, build-artifact]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      packages: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: nexora-web-0.2.0
+          path: dist
+      - name: Publish image to GHCR
+        env:
+          NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
+        run: |
+          echo "$NUGET_TOKEN" | docker login ghcr.io --username "${GITHUB_ACTOR}" --password-stdin
+          docker build --build-context web-dist=dist --tag "ghcr.io/${GITHUB_REPOSITORY}:0.2.0" --push .

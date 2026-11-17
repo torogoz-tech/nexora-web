@@ -6,6 +6,7 @@ import MemberWorkflowEditor from './MemberWorkflowEditor'
 import MemberAccessMethods from './MemberAccessMethods'
 import MemberPhoto from './MemberPhoto'
 import MemberEmail from './MemberEmail'
+import MemberManagementActions from './MemberManagementActions'
 export default function MemberProfile({member,onSaved=()=>{}}:{member:OrganizationMember;onSaved?:()=>void}) {
  const {t,dateLocale}=useTranslation()
  return <aside aria-label={t('Perfil del miembro')} className="min-w-0">
@@ -19,5 +20,6 @@ export default function MemberProfile({member,onSaved=()=>{}}:{member:Organizati
    {member.created_at&&<div><dt className="mb-1 flex items-center gap-2 text-xs text-base-content/45"><CalendarDays size={14}/>{t('Miembro desde')}</dt><dd className="text-base-content/75">{new Date(member.created_at).toLocaleDateString(dateLocale)}</dd></div>}
   </dl>
   <section className="mt-6 border-t border-base-300 pt-5"><h2 className="mb-3 text-xs font-semibold text-base-content/55">{t('Métodos de acceso')}</h2><MemberAccessMethods member={member}/></section>
+  <MemberManagementActions member={member} onSaved={onSaved}/>
  </aside>
 }
