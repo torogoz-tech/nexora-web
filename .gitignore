@@ -1,4 +1,6 @@
 /target/
+node_modules/
+dist/
 .nexora/
 .DS_Store
 __pycache__/
