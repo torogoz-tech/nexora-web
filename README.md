@@ -30,7 +30,7 @@ The web client is version `0.2.0`. Its version must remain aligned with the API 
 
 ## Container build
 
-The web image is assembled from the Vite output produced by CI. The workflow runs the dependency installation, tests, lint, and production build once, stores `dist` as the `0.2.0` workflow artifact, and the image job builds the Nginx runtime container from that artifact without running npm or Vite again. On pushes to `main`, the image is published as `ghcr.io/torogoz-tech/nexora-web:0.2.0` using the repository's `NUGET_TOKEN` secret.
+The web image is assembled from the Vite output generated during the release build. The Nginx runtime container receives the `0.2.0` `dist` output without running npm or Vite again.
 
 For a local build, create the Vite output and provide it as the named BuildKit context:
 
