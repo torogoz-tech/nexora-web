@@ -57,6 +57,6 @@ it('describes inherited access without presenting a frozen project selection',()
  const key=fixture.data.items[0]!
  fixture.data.items=[{...key,revoked_at:null,expires_at:'2026-11-09T10:00:00Z',scope:{...key.scope,project_ids:[],installation:true,all_projects:true}}]
  const html=renderToStaticMarkup(createElement(MemoryRouter,null,createElement(McpSettingsPage)))
- expect(html).toContain('Proyectos y permisos vigentes del miembro')
+  expect(html).not.toContain('Proyectos y permisos vigentes del miembro')
  expect(html).not.toContain('Permisos globales</p>')
 })

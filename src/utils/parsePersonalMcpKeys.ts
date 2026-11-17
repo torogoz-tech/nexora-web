@@ -13,7 +13,7 @@ export function parsePersonalMcpKeys(value: unknown): PersonalMcpKeysData {
   items: v.items.map(value => {
    const item = requireRecord(value), scope = requireRecord(item.scope)
    if (typeof scope.installation !== 'boolean' || typeof scope.all_projects !== 'boolean') throw invalid()
-   return { id: text(item.id), actor_id: text(item.actor_id), name: text(item.name), expires_at: text(item.expires_at), revoked_at: nullable(item.revoked_at), last_mcp_at: nullable(item.last_mcp_at), mcp_client_name: nullable(item.mcp_client_name), mcp_client_version: nullable(item.mcp_client_version), scope: { capabilities: strings(scope.capabilities), project_ids: strings(scope.project_ids), installation: scope.installation, all_projects: scope.all_projects } }
+   return { id: text(item.id), actor_id: text(item.actor_id), name: text(item.name), expires_at: nullable(item.expires_at), revoked_at: nullable(item.revoked_at), last_mcp_at: nullable(item.last_mcp_at), mcp_client_name: nullable(item.mcp_client_name), mcp_client_version: nullable(item.mcp_client_version), scope: { capabilities: strings(scope.capabilities), project_ids: strings(scope.project_ids), installation: scope.installation, all_projects: scope.all_projects } }
   }),
   projects: v.projects.map(value => { const project = requireRecord(value); return { id: text(project.id), name: text(project.name) } }),
   mcp_url: '/mcp', server_time: text(v.server_time), can_create: v.can_create, can_include_global: v.can_include_global,
