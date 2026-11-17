@@ -1,8 +1,6 @@
 import MemberWorkflowTasks from '../components/MemberWorkflowTasks'
 import MemberWorkWeek from '../components/MemberWorkWeek'
 import ProfileActivityFeed from '../components/ProfileActivityFeed'
-import {useWorkCatalog} from '../hooks/useWorkCatalog'
-import {parseCalendarActivities} from '../utils/parseCalendarActivities'
 import PersonalRatingFeedback from '../components/PersonalRatingFeedback'
 import MemberTotpSettings from '../components/MemberTotpSettings'
 import MemberWeeklyRating from '../components/MemberWeeklyRating'
@@ -12,8 +10,9 @@ import { calendarToday } from '../utils/calendarToday'
 import MemberGitAliases from '../components/MemberGitAliases'
 import { useContext, useState } from 'react'
 import { WorkspacePermissionsContext } from '../app/WorkspacePermissionsContext'
-import { Link, useSearchParams } from 'react-router'
-import { ArrowLeft, FolderGit2, FolderKanban, ListTodo, RefreshCw } from 'lucide-react'
+import { Link, useLocation, useSearchParams } from 'react-router'
+import { ArrowLeft, FolderGit2, FolderKanban, RefreshCw } from 'lucide-react'
+import { createElement } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { useTranslation } from '../hooks/useTranslation'
 import { useApiData } from '../hooks/useApiData'
@@ -24,11 +23,15 @@ import DataMessage from '../components/DataMessage'
 import IconButton from '../components/IconButton'
 import RowAction from '../components/RowAction'
 import Dropdown from '../components/Dropdown'
+import { taskDetailPath } from '../utils/taskDetailPath'
+import { getTaskTypeIcon } from '../utils/getTaskTypeIcon'
+import { useCalendarActivitiesRange } from '../hooks/useCalendarActivitiesRange'
 export default function MemberProfilePage({memberId}:{memberId?:string}) {
  const {session}=useAuth()
  const permissions=useContext(WorkspacePermissionsContext)
  const {t,dateLocale}=useTranslation()
  const [params,setParams]=useSearchParams()
+ const location=useLocation()
  const [currentYear]=useState(()=>new Date().getUTCFullYear())
  const requested=Number(params.get('year'))
  const year=Number.isInteger(requested)&&requested>=2000&&requested<=currentYear?requested:currentYear
@@ -36,7 +39,7 @@ export default function MemberProfilePage({memberId}:{memberId?:string}) {
  const profile=useApiData(id?`/api/v1/members/${encodeURIComponent(id)}/profile?year=${year}`:null,parseMemberProfile)
  const calendar=useApiData('/api/v1/labor-calendar',parseLaborCalendar)
  const today=calendar.data?calendarToday(calendar.data.settings.timezone):null
- const activities=useWorkCatalog(calendar.data?`/api/v1/calendar/activities?from=${year}-01-01&to=${year+1}-01-01`:null,parseCalendarActivities)
+ const activities=useCalendarActivitiesRange(calendar.data?`${year}-01-01`:null,calendar.data?`${year+1}-01-01`:null)
  const refresh=()=>{profile.reload();calendar.reload();activities.reload()}
  const data=profile.data
  const years=Array.from({length:Math.min(5,currentYear-1999)},(_,index)=>currentYear-index)
@@ -49,7 +52,7 @@ export default function MemberProfilePage({memberId}:{memberId?:string}) {
    <div><MemberProfile member={data.member} onSaved={profile.reload}/>{permissions?.role==='super_admin'&&<MemberTotpSettings memberId={data.member.id}/>}{(data.member.role==='developer'||data.member.role==='technical_lead')&&(id===session?.actorId||['super_admin','manager','technical_lead'].includes(permissions?.role??''))&&today&&<MemberWeeklyRating memberId={data.member.id} today={today} own={id===session?.actorId}/>}<MemberGitAliases key={data.member.id} memberId={data.member.id}/><section className="mt-6 border-t border-base-300 pt-5"><h2 className="mb-3 flex items-center gap-2 text-sm font-semibold"><FolderKanban size={15}/>{t('Proyectos')}<span className="ml-auto text-xs text-base-content/40">{data.projects.length}</span></h2>{data.projects.length?<ul className="space-y-2 text-sm text-base-content/65">{[...data.projects].sort((a,b)=>a.name.localeCompare(b.name,dateLocale)).map(project=><li key={project.id} className="break-words"><Link to={`/projects/${encodeURIComponent(project.id)}`} className="hover:underline">{project.name}</Link></li>)}</ul>:<p className="text-xs text-base-content/45">{t('Sin proyectos autorizados.')}</p>}</section></div>
    <div className="min-w-0 space-y-9">
 
-    <section aria-labelledby="profile-priority-title"><header className="mb-3 flex justify-between gap-3"><h2 id="profile-priority-title" className="font-semibold">{t('Prioridad alta')}</h2><span className="text-xs text-base-content/45">{data.priority_tasks.length}</span></header>{data.priority_tasks.length?<ul className="divide-y divide-base-300">{data.priority_tasks.map(task=><li key={task.id} className="flex items-start gap-3 py-4"><span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-warning/10 text-warning"><ListTodo size={16}/></span><div className="min-w-0 flex-1"><h3 className="break-words text-sm font-medium">{task.title}</h3><p className="mt-1 text-xs text-base-content/45">{projectName(task.project_id)}</p></div><span className="text-xs text-warning">{t(task.priority==='critical'?'Crítica':'Alta')}</span></li>)}</ul>:<p className="rounded-2xl border border-dashed border-base-300 px-5 py-6 text-sm text-base-content/45">{t('No hay tareas de prioridad alta pendientes.')}</p>}</section>
+    <section aria-labelledby="profile-priority-title"><header className="mb-3 flex justify-between gap-3"><h2 id="profile-priority-title" className="font-semibold">{t('Prioridad alta')}</h2><span className="text-xs text-base-content/45">{data.priority_tasks.length}</span></header>{data.priority_tasks.length?<ul className="divide-y divide-base-300">{data.priority_tasks.map(task=><li key={task.id} className="flex items-start gap-3 py-4"><span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-base-200/60" style={{color:task.type_color??'currentColor'}}>{createElement(getTaskTypeIcon(task.type_code??'task',task.type_icon),{size:16,'aria-hidden':true})}</span><div className="min-w-0 flex-1"><Link to={taskDetailPath(task.id,location.pathname+location.search)} className="block break-words text-sm font-medium hover:underline">{task.title}</Link><p className="mt-1 text-xs text-base-content/45">{projectName(task.project_id)}</p></div><span className="text-xs text-warning">{t(task.priority==='critical'?'Crítica':'Alta')}</span></li>)}</ul>:<p className="rounded-2xl border border-dashed border-base-300 px-5 py-6 text-sm text-base-content/45">{t('No hay tareas de prioridad alta pendientes.')}</p>}</section>
     <MemberWorkflowTasks tasks={data.workflow_tasks??[]}/>
     {(data.member.role==='developer'||data.member.role==='technical_lead')&&today&&<MemberWorkWeek key={data.member.id} memberId={data.member.id} today={today}/>}
     {activities.error&&<p role="alert" className="text-sm text-error">{t(activities.error)}</p>}

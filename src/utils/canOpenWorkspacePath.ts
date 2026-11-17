@@ -15,6 +15,7 @@ export function canOpenWorkspacePath(path: string, permissions: EffectivePermiss
   if (path === '/team/projects') return has('projects:read') || has('installation:manage',true)
   if (path === '/settings/projects') return has('projects:read') || has('installation:manage',true)
   if (path === '/settings/members') return has('members:read',true) || has('actors:manage',true) || has('installation:manage',true)
+  if (path === '/settings/member-requests') return has('actors:manage',true) || has('installation:manage',true)
   if (path.startsWith('/settings/members/')) return permissions.role !== null
   if (path.startsWith('/settings')) return has('installation:manage', true)
   if (path === '/code/analyses') return ['technical_lead', 'pmo', 'manager', 'super_admin'].some(role => role === permissions.role)

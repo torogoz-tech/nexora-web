@@ -38,6 +38,7 @@ import OidcPage from '../pages/OidcPage'
 import SmtpPage from '../pages/SmtpPage'
 import GitIntegrationPage from '../pages/GitIntegrationPage'
 import MembersPage from '../pages/MembersPage'
+import MemberRequestsPage from '../pages/MemberRequestsPage'
 import EmailContentsPage from '../pages/EmailContentsPage'
 import EmailContentEditorPage from '../pages/EmailContentEditorPage'
 import EmailTemplatePage from '../pages/EmailTemplatePage'
@@ -191,7 +192,9 @@ export default function Workspace() {
           <BoardsPage />
         ) : page.path === '/tasks' ? (
           <TasksPage />
-        ) : page.path === '/settings/products' ? (<ProductsPage/>) : page.path === '/settings/members' ? (
+        ) : page.path === '/settings/products' ? (<ProductsPage/>) : page.path === '/settings/member-requests' ? (
+          <MemberRequestsPage />
+        ) : page.path === '/settings/members' ? (
           <MembersPage />
         ) : page.path === '/settings/labor-calendar' ? (
           <LaborCalendarPage settingsView />

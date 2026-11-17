@@ -321,7 +321,7 @@ export default function WorkflowEditor({
         <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
           <div>
             <h1 className="text-xl font-semibold">
-              {saved ? t('Editar workflow') : t('Crear workflow')}
+              {focus ? (inspector === 'state' ? t('Editar estado') : t('Editar transición')) : saved ? t('Editar workflow') : t('Crear workflow')}
             </h1>
             <p className="mt-1 text-xs text-base-content/45">
               {saved?.latest_version_number
@@ -368,7 +368,7 @@ export default function WorkflowEditor({
             )}{' '}
           </p>
         )}
-        <fieldset disabled={disabled} className="mb-6 grid min-w-0 gap-5">
+        <fieldset disabled={disabled} className={`mb-6 grid min-w-0 gap-5 ${focus ? 'hidden' : ''}`}>
           <div className="flex min-w-0 items-end gap-3">
           <WorkflowIconPicker value={input.icon ?? 'workflow'} disabled={disabled} onChange={icon => setInput(value => ({ ...value, icon }))}/>
           <WorkflowColorPicker value={input.color || undefined} disabled={disabled} onChange={color => setInput(value => ({ ...value, color:color ?? '' }))}/>
@@ -406,7 +406,7 @@ export default function WorkflowEditor({
             />
           </label>
         </fieldset>
-        <div className="mb-3 flex items-center justify-between gap-3">
+        <div className={`mb-3 flex items-center justify-between gap-3 ${focus ? 'hidden' : ''}`}>
           <h2 className="text-sm font-semibold">
             {t('Estados y transiciones')}
           </h2>
@@ -460,7 +460,7 @@ export default function WorkflowEditor({
             </RowAction>
           </div>
         </div>
-        <div className="min-w-0">
+        <div className={`min-w-0 ${focus ? 'hidden' : ''}`}>
           <WorkflowCanvas
             key={canvasKey}
             layoutKey={canvasKey}

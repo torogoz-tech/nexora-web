@@ -13,7 +13,7 @@ vi.mock('../hooks/useApiData', () => ({ useApiData: (path: string) => {
 } }))
 describe('request navigation', () => {
   it('places type administration only in Settings and denies external roles', () => {
-    expect(navigation.find(area => area.id === 'requests')?.items.map(item => item.path)).toEqual(['/requests','/requests/reports'])
+    expect(navigation.find(area => area.id === 'requests')?.items.map(item => item.path)).toEqual(['/requests','/requests/reports','/settings/member-requests','/settings/members'])
     expect(navigation.find(area => area.id === 'settings')?.items.some(item => item.path === '/settings/request-types')).toBe(true)
     for (const role of ['user', 'supervisor', 'developer']) expect(canOpenWorkspacePath('/settings/request-types', parseEffectivePermissions({ actor_id: 'a', role, grants: [] }))).toBe(false)
     expect(canOpenWorkspacePath('/settings/request-types', parseEffectivePermissions({ actor_id: 'a', role: 'manager', grants: [] }))).toBe(true)
