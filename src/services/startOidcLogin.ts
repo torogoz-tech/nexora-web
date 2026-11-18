@@ -83,10 +83,14 @@ export async function startOidcLogin(
           return
         if (
           popup.document.readyState !== 'complete' ||
-          popup.document.URL !== location.href ||
-          !popup.document.querySelector('pre')
+          popup.document.URL !== location.href
         )
           return
+        if (popup.document.querySelector('h1')?.textContent?.includes('No se pudo completar el acceso')) {
+          fail('El proveedor no pudo completar el acceso. Inicia sesión de nuevo.')
+          return
+        }
+        if (!popup.document.querySelector('pre')) return
         if (location.searchParams.get('state') !== expectedState) {
           fail('No pudimos verificar la respuesta de acceso.')
           return
