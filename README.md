@@ -26,18 +26,18 @@ npm run build
 
 The application expects `/api` to be routed to a Nexora API instance. Provider secrets and private repository data must never be placed in frontend code or browser storage.
 
-The web client is version `0.3.1`. Its version must remain aligned with the API contract it consumes and is governed by the ecosystem's SemVer and compatibility policy.
+The web client is version `0.3.2`. Its version must remain aligned with the API contract it consumes and is governed by the ecosystem's SemVer and compatibility policy.
 
 ## Container build
 
-The web image is assembled from the Vite output generated during the release build. The Nginx runtime container receives the `0.3.1` `dist` output without running npm or Vite again.
+The web image is assembled from the Vite output generated during the release build. The Nginx runtime container receives the `0.3.2` `dist` output without running npm or Vite again.
 
 For a local build, create the Vite output and provide it as the named BuildKit context:
 
 ```bash
 npm ci
 npm run build
-docker build --build-context web-dist=dist -t nexora-web:0.3.1 .
+docker build --build-context web-dist=dist -t nexora-web:0.3.2 .
 ```
 
 ## Read the web guide

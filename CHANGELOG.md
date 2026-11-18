@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.2
+
+- Improved the service request detail with section navigation and explicit metadata editing.
+- Excluded archived projects from approval request lookup to prevent unavailable-resource errors.
+
 ## 0.3.1
 
 - Made the service-request workspace use the full available width.
