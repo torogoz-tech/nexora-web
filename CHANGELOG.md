@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.1
+
+- Made the service-request workspace use the full available width.
+- Allowed images pasted into new request descriptions to be uploaded with the request attachments.
+
 ## 0.3.0
 
 - Added member incorporation requests for OIDC identities and invitations.

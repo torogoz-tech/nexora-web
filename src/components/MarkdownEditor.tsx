@@ -6,7 +6,7 @@ import WikiMarkdown from './WikiMarkdown'
 import { uploadTaskEvidence } from '../services/uploadTaskEvidence'
 import { useTranslation } from '../hooks/useTranslation'
 import type { MarkdownEditorProps } from '../types/MarkdownEditorProps'
-export default function MarkdownEditor({hint,allowDiagrams=false,uploadImage=uploadTaskEvidence,allowImages=true,value, onChange, disabled = false, maxLength = 8000, label, onUploadingChange}: MarkdownEditorProps) {
+export default function MarkdownEditor({hint,allowDiagrams=false,uploadImage=uploadTaskEvidence,onImageFiles,allowImages=true,value, onChange, disabled = false, maxLength = 8000, label, onUploadingChange}: MarkdownEditorProps) {
  const {t} = useTranslation(), id = useId(), input = useRef<HTMLTextAreaElement>(null)
  const [preview,setPreview] = useState(false), [error,setError] = useState('')
  const fileInput=useRef<HTMLInputElement>(null),latest=useRef(value),uploads=useRef(0),[uploading,setUploading]=useState(false)
@@ -14,6 +14,7 @@ export default function MarkdownEditor({hint,allowDiagrams=false,uploadImage=upl
  const change=(next:string)=>{latest.current=next;onChange(next)}
  const upload=async(files:File[])=>{
   if(disabled||!files.length)return
+  if(onImageFiles){onImageFiles(files);return}
   if(files.length>8){setError(t('Pega hasta 8 imágenes a la vez.'));return}
   const start=input.current?.selectionStart??latest.current.length,end=input.current?.selectionEnd??start
   const items=files.map(file=>({file,token:`![Subiendo imagen…](nexora-upload:${crypto.randomUUID()})`}))
