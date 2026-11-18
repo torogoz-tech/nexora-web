@@ -2,6 +2,7 @@
 
 ## 0.4.0
 
+- Handle the styled OIDC callback error page in the login popup and show a clear recovery message.
 - Align the web artifact and image release with the Nexora 0.4.0 component deployment set.
 - Keep browser API requests same-origin so Nginx remains the public routing boundary for the API and MCP services.
 
