@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.0
+
+- Align the web artifact and image release with the Nexora 0.4.0 component deployment set.
+- Keep browser API requests same-origin so Nginx remains the public routing boundary for the API and MCP services.
+
 ## 0.3.3
 
 - Added alphabetical ordering and searchable, height-limited dropdowns to improve request filtering.
