@@ -111,7 +111,7 @@ export default function AppLayout({
         inert={(hasContextSidebar && sidebarOpen) || undefined}
         className="flex min-h-0 min-w-0 flex-col overflow-y-auto bg-base-100 outline-none"
       >
-        <Page wide={wide || knowledgeArticle} viewport={boardLayout || pathname === '/calendar' || pathname === '/notifications'} fullWidth={boardLayout || pathname === '/calendar' || pathname === '/notifications' || pathname === '/tasks' || pathname.startsWith('/requests') || pathname === '/settings/members'}>
+        <Page wide={wide || knowledgeArticle || pathname === '/code/releases'} viewport={boardLayout || pathname === '/calendar' || pathname === '/notifications'} fullWidth={boardLayout || pathname === '/calendar' || pathname === '/notifications' || pathname === '/tasks' || pathname.startsWith('/requests') || pathname === '/settings/members'}>
           {children}
         </Page>
       </main>
