@@ -1,7 +1,8 @@
 import RequestTypeGlyph from './RequestTypeGlyph'
 import { Link, useLocation, useSearchParams } from 'react-router'
-import { Mail, ChartNoAxesCombined } from 'lucide-react'
+import { Mail, ChartNoAxesCombined, UsersRound } from 'lucide-react'
 import { useApiData } from '../hooks/useApiData'
+import { useWorkspaceNavigation } from '../hooks/useWorkspaceNavigation'
 import { useTranslation } from '../hooks/useTranslation'
 import { parseServiceRequestTypes } from '../utils/parseServiceRequestTypes'
 import type { WorkContextNavigationProps } from '../types/WorkContextNavigationProps'
@@ -11,6 +12,9 @@ export default function RequestsContextNavigation({ onClose }: WorkContextNaviga
   const { t } = useTranslation()
   const { pathname } = useLocation()
   const [params] = useSearchParams()
+  const members = useWorkspaceNavigation()
+    .find(area => area.id === 'requests')
+    ?.items.find(item => item.path === '/settings/members')
   const types = useApiData('/api/v1/requests/types', parseServiceRequestTypes)
   const selected = params.get('type')
   const total = types.data?.items.reduce((sum, type) => sum + (type.total ?? 0), 0)
@@ -36,5 +40,6 @@ export default function RequestsContextNavigation({ onClose }: WorkContextNaviga
       </Link>)}
     </div>
     {[{path:'/requests/reports',label:'Reportes',icon:ChartNoAxesCombined}].map(({path,label,icon:Icon})=><Link key={path} to={path} onClick={onClose} className="context-nav-item" aria-current={pathname===path?'page':undefined}><Icon size={16} aria-hidden="true"/><span>{t(label)}</span></Link>)}
+    {members && <Link to={members.path} onClick={onClose} className="context-nav-item" aria-current={pathname===members.path || pathname.startsWith(`${members.path}/`) ? 'page' : undefined}><UsersRound size={16} aria-hidden="true"/><span>{t(members.label)}</span></Link>}
   </nav>
 }
