@@ -7,7 +7,7 @@ export async function getProjectApprovals(signal: AbortSignal, permissions: Effe
   const result: PendingApproval[] = []
   let cursor: string | undefined
   do {
-    const projects = await getProjects(signal, true, cursor)
+    const projects = await getProjects(signal, false, cursor)
     for (const project of projects.items) {
       if (!permissions.grants.some(grant => grant.capability === 'approvals:grant' && (grant.project_id === null || grant.project_id === project.id))) continue
       let after: string | undefined

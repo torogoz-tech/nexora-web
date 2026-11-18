@@ -8,8 +8,10 @@ import {requireRecord} from '../utils/requireRecord'
 import type {TaskDetails} from '../types/TaskDetails'
 import DataMessage from './DataMessage'
 async function mutationError(response: Response, fallback: string) {
- const problem=await response.json().catch(()=>null) as {title?:unknown}|null
- return typeof problem?.title==='string'?problem.title:fallback
+ const problem=await response.json().catch(()=>null) as {title?:unknown;detail?:unknown}|null
+ const message=typeof problem?.detail==='string'?problem.detail:problem?.title
+ if(typeof message!=='string')return `${fallback} (${response.status})`
+ return message.replace(/^(invalid input|conflict):\s*/i,'')
 }
 export default function TaskCommitReferences({task,canManage,onChanged}:{task:TaskDetails;canManage:boolean;onChanged:()=>void}){
  const {t}=useTranslation(),mutation=useIntegrationMutation(),[repository,setRepository]=useState(''),[commit,setCommit]=useState('')

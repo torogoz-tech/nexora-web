@@ -12,8 +12,9 @@ vi.mock('../hooks/useApiData', () => ({ useApiData: (path: string) => {
   return { data: path.endsWith('/types') ? { items: [{ id: 'support', name: 'Soporte', archived: false, total: 3 }, { id: 'old', name: 'Anterior', archived: true, total: 0 }] } : { items: [], total: 0 }, loading: false, error: null, reload: () => {} }
 } }))
 describe('request navigation', () => {
-  it('places type administration only in Settings and denies external roles', () => {
-    expect(navigation.find(area => area.id === 'requests')?.items.map(item => item.path)).toEqual(['/requests','/requests/reports','/settings/member-requests','/settings/members'])
+  it('places member onboarding only in Settings and keeps member roles in Requests', () => {
+    expect(navigation.find(area => area.id === 'requests')?.items.map(item => item.path)).toEqual(['/requests','/requests/reports','/settings/members'])
+    expect(navigation.find(area => area.id === 'settings')?.items.some(item => item.path === '/settings/member-requests')).toBe(true)
     expect(navigation.find(area => area.id === 'settings')?.items.some(item => item.path === '/settings/request-types')).toBe(true)
     for (const role of ['user', 'supervisor', 'developer']) expect(canOpenWorkspacePath('/settings/request-types', parseEffectivePermissions({ actor_id: 'a', role, grants: [] }))).toBe(false)
     expect(canOpenWorkspacePath('/settings/request-types', parseEffectivePermissions({ actor_id: 'a', role: 'manager', grants: [] }))).toBe(true)

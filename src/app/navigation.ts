@@ -32,7 +32,7 @@ import type { NavigationItem } from '../types/NavigationItem'
 
 export const navigation: NavigationItem[] = [
  {id:'profile',label:'Mi perfil',icon:UserRound,description:'Tu perfil, actividad y conexión MCP.',items:[{path:'/profile',label:'Mi perfil',icon:UserRound,description:'Perfil y actividad de trabajo.'}]},
- {id:"requests",label:"Solicitudes",icon:Mail,description:"Atención y seguimiento de solicitudes.",items:[{path:"/requests",label:"Solicitudes",icon:Mail,description:"Solicitudes del equipo."},{path:"/requests/reports",label:"Reportes",icon:ListTodo,description:"Indicadores de atención y SLA."},{path:"/settings/member-requests",label:"Solicitudes de incorporación",icon:UsersRound,description:"Identidades e invitaciones pendientes de rol."},{path:"/settings/members",label:"Miembros",icon:UsersRound,description:"Miembros aprobados y sus roles."}]},
+ {id:"requests",label:"Solicitudes",icon:Mail,description:"Atención y seguimiento de solicitudes.",items:[{path:"/requests",label:"Solicitudes",icon:Mail,description:"Solicitudes del equipo."},{path:"/requests/reports",label:"Reportes",icon:ListTodo,description:"Indicadores de atención y SLA."},{path:"/settings/members",label:"Miembros",icon:UsersRound,description:"Miembros aprobados y sus roles."}]},
 
   {
     id: 'work',
@@ -135,6 +135,7 @@ export const navigation: NavigationItem[] = [
         icon: Settings,
         description: 'Preferencias del espacio de trabajo.',
       },
+      {path:'/settings/member-requests',label:'Solicitudes de incorporación',icon:UsersRound,description:'Revisa identidades e invitaciones y asigna sus roles.'},
       { path: '/settings/mcp', label: 'Acceso MCP', icon: KeyRound, description: 'Claves personales y conexión de tu asistente de desarrollo.' },
       { path: '/settings/security', label: 'Seguridad personal', icon: ShieldCheck, description: 'Protección de tu cuenta y métodos de autenticación.' },
       {

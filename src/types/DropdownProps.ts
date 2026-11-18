@@ -9,4 +9,5 @@ export type DropdownProps = {
   required?: boolean
   name?: string
   className?: string
+  searchable?: boolean
 }
