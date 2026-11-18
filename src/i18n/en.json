@@ -2392,6 +2392,7 @@
   "La valoración necesita un Code Review anterior en la transición.": "Rating contributions requires a previous Code Review in the transition.",
   "El destinatario no es válido.": "The recipient is invalid.",
   "Esperando confirmación del proveedor": "Awaiting provider confirmation",
+  "Esperando revisión de conocimiento": "Waiting for knowledge review",
   "Reintentar preparación de ramas": "Retry branch preparation",
   "Commits de la tarea": "Task commits",
   "Vincula los commits concretos de esta tarea. El servidor verifica su pertenencia; las publicaciones incluyen solo estos cambios.": "Link the specific commits for this task. The server verifies membership; releases include only these changes.",
