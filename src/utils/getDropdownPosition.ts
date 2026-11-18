@@ -8,7 +8,7 @@ export function getDropdownPosition(
   const below = viewportHeight - rect.bottom - 12
   const above = rect.top - 12
   const upwards = below < Math.min(contentHeight, 180) && above > below
-  const maxHeight = Math.max(40, Math.min(280, upwards ? above : below))
+  const maxHeight = Math.max(40, Math.min(240, upwards ? above : below))
   const height = Math.min(contentHeight, maxHeight)
   return {
     position: 'fixed' as const,

@@ -1,9 +1,17 @@
 import { useTranslation } from '../hooks/useTranslation'
 import { useEffect, useId, useRef, useState } from 'react'
 import type { KeyboardEvent } from 'react'
-import { Check, ChevronDown } from 'lucide-react'
+import { Check, ChevronDown, Search } from 'lucide-react'
 import { getDropdownPosition } from '../utils/getDropdownPosition'
 import type { DropdownProps } from '../types/DropdownProps'
+
+function normalize(value: string) {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLocaleLowerCase()
+}
+
 export default function Dropdown({
   label,
   value,
@@ -14,18 +22,27 @@ export default function Dropdown({
   required = false,
   name,
   className = 'w-full',
+  searchable,
 }: DropdownProps) {
   const { t } = useTranslation()
   const id = useId()
   const trigger = useRef<HTMLButtonElement>(null)
   const menu = useRef<HTMLDivElement>(null)
+  const searchInput = useRef<HTMLInputElement>(null)
   const [open, setOpen] = useState(false)
   const [invalid, setInvalid] = useState(false)
+  const [search, setSearch] = useState('')
   const [position, setPosition] =
     useState<ReturnType<typeof getDropdownPosition>>()
   const keyboardOpening = useRef(false)
   const typed = useRef({ value: '', time: 0 })
+  const isSearchable = searchable ?? options.length > 8
+  const normalizedSearch = normalize(search.trim())
+  const visibleOptions = normalizedSearch
+    ? options.filter((option) => normalize(option.label).includes(normalizedSearch))
+    : options
   const selected = options.find((option) => option.value === value)
+
   function positionMenu() {
     if (trigger.current)
       setPosition(
@@ -33,10 +50,11 @@ export default function Dropdown({
           trigger.current.getBoundingClientRect(),
           window.innerWidth,
           window.innerHeight,
-          menu.current?.scrollHeight || Math.min(options.length * 36 + 12, 280),
+          menu.current?.scrollHeight || Math.min(options.length * 36 + 12, 240),
         ),
       )
   }
+
   function items() {
     return Array.from(
       menu.current?.querySelectorAll<HTMLButtonElement>(
@@ -44,25 +62,27 @@ export default function Dropdown({
       ) ?? [],
     )
   }
+
   function focusItem(index: number) {
     const all = items()
     const item = all[index]
     if (item) {
       item.focus({ preventScroll: true })
-      if (menu.current)
-        menu.current.scrollTop = Math.max(
-          0,
-          item.offsetTop - menu.current.clientHeight / 2,
-        )
+      const list = menu.current?.querySelector<HTMLElement>('[data-options-list]')
+      if (list)
+        list.scrollTop = Math.max(0, item.offsetTop - list.clientHeight / 2)
     }
   }
+
   function close(restore = false) {
     menu.current?.hidePopover()
     if (restore) trigger.current?.focus()
   }
+
   useEffect(() => {
     if (disabled) menu.current?.hidePopover()
   }, [disabled])
+
   useEffect(() => {
     if (!open) return
     const dismiss = (event: Event) => {
@@ -81,6 +101,7 @@ export default function Dropdown({
       window.removeEventListener('scroll', dismiss, true)
     }
   }, [open])
+
   function keys(event: KeyboardEvent<HTMLDivElement>) {
     if (disabled) return
     const expanded = menu.current?.matches(':popover-open') ?? false
@@ -102,7 +123,9 @@ export default function Dropdown({
         positionMenu()
         menu.current?.showPopover()
         focusItem(index)
-      } else
+      } else if (isSearchable && event.target === searchInput.current) {
+        focusItem(event.key === 'ArrowUp' || event.key === 'End' ? all.length - 1 : 0)
+      } else {
         focusItem(
           event.key === 'Home'
             ? 0
@@ -111,12 +134,13 @@ export default function Dropdown({
               : (current + (event.key === 'ArrowUp' ? -1 : 1) + all.length) %
                 all.length,
         )
+      }
     } else if (event.key === 'Escape' && expanded) {
       event.preventDefault()
       event.stopPropagation()
       close(true)
     } else if (event.key === 'Tab' && expanded) {
-      close(true)
+      close()
     } else if (
       event.key.length === 1 &&
       event.key !== ' ' &&
@@ -124,6 +148,7 @@ export default function Dropdown({
       !event.metaKey &&
       !event.altKey
     ) {
+      if (isSearchable && expanded) return
       event.preventDefault()
       const now = Date.now()
       typed.current = {
@@ -133,21 +158,19 @@ export default function Dropdown({
         time: now,
       }
       const matching = all.findIndex((item) =>
-        item.textContent
-          ?.trim()
-          .toLocaleLowerCase()
-          .startsWith(typed.current.value),
+        item.textContent?.trim().toLocaleLowerCase().startsWith(typed.current.value),
       )
       if (matching >= 0) {
         if (!expanded) {
           keyboardOpening.current = true
           positionMenu()
           menu.current?.showPopover()
-          focusItem(matching)
-        } else focusItem(matching)
+        }
+        focusItem(matching)
       }
     }
   }
+
   return (
     <div className={`min-w-0 ${className}`} onKeyDown={keys}>
       <button
@@ -165,6 +188,7 @@ export default function Dropdown({
         disabled={disabled}
         onClick={() => {
           keyboardOpening.current = false
+          setSearch('')
           positionMenu()
         }}
         className="input input-sm flex w-full cursor-pointer items-center justify-between gap-3 font-normal disabled:cursor-not-allowed disabled:opacity-50"
@@ -184,9 +208,8 @@ export default function Dropdown({
         ref={menu}
         id={id}
         popover="auto"
-        role="listbox"
-        aria-label={label}
-        className="m-0 overflow-y-auto overscroll-contain rounded-xl border border-base-300 bg-base-200 p-1.5 text-base-content shadow-xl"
+        role="presentation"
+        className="m-0 overflow-hidden rounded-xl border border-base-300 bg-base-200 p-1.5 text-base-content shadow-xl"
         style={position}
         onToggle={(event) => {
           const showing = event.currentTarget.matches(':popover-open')
@@ -197,40 +220,72 @@ export default function Dropdown({
             const selectedIndex = all.findIndex(
               (item) => item.dataset.value === value,
             )
-            if (!keyboardOpening.current) focusItem(Math.max(0, selectedIndex))
+            if (!keyboardOpening.current && isSearchable)
+              searchInput.current?.focus({ preventScroll: true })
+            else if (!keyboardOpening.current)
+              focusItem(Math.max(0, selectedIndex))
             keyboardOpening.current = false
+          } else {
+            setSearch('')
           }
         }}
       >
-        {options.length === 0 ? (
-          <p className="px-3 py-2 text-xs text-base-content/50">
-            {' '}
-            {t('No hay opciones disponibles.')}{' '}
-          </p>
-        ) : (
-          options.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              role="option"
-              aria-selected={option.value === value}
-              disabled={option.disabled}
-              data-value={option.value}
-              tabIndex={-1}
-              className={`flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-left text-sm outline-none hover:bg-base-300 focus-visible:bg-base-300 disabled:cursor-not-allowed disabled:text-base-content/35 ${option.value === value ? 'bg-base-300 font-medium' : ''}`}
-              onClick={() => {
-                onChange(option.value)
-                setInvalid(false)
-                close(true)
+        {isSearchable && (
+          <label className="input input-sm mb-1 flex w-full items-center gap-2">
+            <Search size={14} aria-hidden="true" />
+            <input
+              ref={searchInput}
+              aria-label={t('Buscar opciones')}
+              placeholder={t('Buscar opciones…')}
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Escape') {
+                  event.preventDefault()
+                  event.stopPropagation()
+                  close(true)
+                }
               }}
-            >
-              <span className="min-w-0 break-words">{option.label}</span>
-              {option.value === value && (
-                <Check size={14} aria-hidden="true" className="shrink-0" />
-              )}
-            </button>
-          ))
+            />
+          </label>
         )}
+        <div
+          role="listbox"
+          aria-label={label}
+          data-options-list
+          className="max-h-56 overflow-y-auto overscroll-contain"
+        >
+          {visibleOptions.length === 0 ? (
+            <p className="px-3 py-2 text-xs text-base-content/50">
+              {options.length === 0
+                ? t('No hay opciones disponibles.')
+                : t('No hay resultados.')}
+            </p>
+          ) : (
+            visibleOptions.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                role="option"
+                aria-selected={option.value === value}
+                disabled={option.disabled}
+                data-value={option.value}
+                tabIndex={-1}
+                className={`flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-left text-sm outline-none hover:bg-base-300 focus-visible:bg-base-300 disabled:cursor-not-allowed disabled:text-base-content/35 ${option.value === value ? 'bg-base-300 font-medium' : ''}`}
+                onClick={() => {
+                  onChange(option.value)
+                  setInvalid(false)
+                  close(true)
+                }}
+              >
+                <span className="min-w-0 break-words">{option.label}</span>
+                {option.value === value && (
+                  <Check size={14} aria-hidden="true" className="shrink-0" />
+                )}
+              </button>
+            ))
+          )}
+        </div>
       </div>
       {required ? (
         <input
@@ -258,8 +313,7 @@ export default function Dropdown({
           role="alert"
           className="mt-1 block text-xs text-error"
         >
-          {' '}
-          {t('Selecciona una opción.')}{' '}
+          {t('Selecciona una opción.')}
         </span>
       )}
     </div>
