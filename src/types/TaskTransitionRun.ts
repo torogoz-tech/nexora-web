@@ -7,7 +7,7 @@ export type TaskTransitionRun = {
  actor_id:string
  parameters:Record<string,unknown>
  approval_request_id?:string|null
- status:'ready'|'running'|'waiting_approval'|'waiting_external'|'failed'|'succeeded'
+ status:'ready'|'running'|'waiting_approval'|'waiting_external'|'waiting_knowledge'|'failed'|'succeeded'
  next_step:number
  advanced:boolean
  outcomes:{step_index:number;kind:string;result:unknown}[]
